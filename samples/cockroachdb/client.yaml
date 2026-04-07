@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cockroachdb-setup-otel
+data:
+  setup-otel.sql: |
+    -- Create a sample database.
+    CREATE DATABASE otel_test;
+
+    -- Set the maximum range size to 8 MiB to trigger more frequent splits and generate more spans.
+    ALTER DATABASE otel_test CONFIGURE ZONE USING range_max_bytes = 8388608, range_min_bytes = 4194304; -- 8 MiB max, 4 MiB min
+
+    -- Create a sample table and insert data.
+    CREATE TABLE otel_test.foo (key UUID PRIMARY KEY, index INT, value STRING, INDEX (index));
+    INSERT INTO otel_test.foo (key, index, value) SELECT gen_random_uuid(), n, sha256(n::STRING) FROM generate_series(1, 300000) AS n;
+
+    -- Configure the cluster to send traces to the OpenTelemetry Collector.
+    SET CLUSTER SETTING trace.opentelemetry.collector = 'opentelemetry-collector.crdb.svc.cluster.local:4317';
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cockroachdb-client
+spec:
+  serviceAccountName: cockroachdb
+  containers:
+  - name: cockroachdb-client
+    image: cockroachdb/cockroach:v26.1.1  # Ensure this matches the version of deployed CockroachDB Cluster by the Helm chart
+    volumeMounts:
+    - name: client-certs
+      mountPath: /cockroach/cockroach-certs/
+    - name: setup-otel
+      mountPath: /setup
+    command:
+    - sleep
+    - inf
+  terminationGracePeriodSeconds: 0
+  volumes:
+  - name: client-certs
+    projected:
+      sources:
+        - secret:
+            name: cockroachdb-client-secret
+            items:
+              - key: ca.crt
+                path: ca.crt
+              - key: tls.crt
+                path: client.root.crt
+              - key: tls.key
+                path: client.root.key
+      defaultMode: 256
+  - name: setup-otel
+    configMap:
+      name: cockroachdb-setup-otel
