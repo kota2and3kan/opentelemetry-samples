@@ -1,0 +1,42 @@
+replicas: 1
+
+# Do not use this password in production. For local testing only.
+adminPassword: lgtm
+
+service:
+  type: LoadBalancer
+  port: 3000
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki.lgtm.svc.cluster.local:3100
+        isDefault: false
+        jsonData:
+          derivedFields:
+            - datasourceUid: tempo
+              matcherRegex: '"traceID":"(\w+)"'
+              name: TraceID
+              url: "$${__value.raw}"
+      - name: Tempo
+        type: tempo
+        uid: tempo
+        access: proxy
+        url: http://tempo.lgtm.svc.cluster.local:3200
+        isDefault: false
+      - name: Mimir
+        type: prometheus
+        access: proxy
+        url: http://mimir.lgtm.svc.cluster.local:9009/prometheus
+        isDefault: true
+
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    folder: /tmp/dashboards
+    searchNamespace: ALL
