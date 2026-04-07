@@ -1,0 +1,32 @@
+service:
+  public:
+    type: LoadBalancer
+
+storage:
+  persistentVolume:
+    enabled: false
+
+tls:
+  enabled: true
+
+statefulset:
+  replicas: 3
+  terminationGracePeriodSeconds: 0
+  env:
+    - name: COCKROACH_MIN_RANGE_MAX_BYTES
+      value: "8388608" # 8 MiB
+
+conf:
+  log:
+    enabled: true
+    config:
+      otlp-defaults:
+        mode: grpc
+        compression: gzip
+      sinks:
+        otlp-servers:
+          all-logs:
+            address: opentelemetry-collector.crdb.svc.cluster.local:4317
+            channels: all
+            filter: INFO
+            format: json
