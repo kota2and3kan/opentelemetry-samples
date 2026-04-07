@@ -1,0 +1,97 @@
+# The official Mimir Helm chart (grafana/mimir-distributed) is designed for
+# production use and does not support the monolithic mode (-target=all).
+# Since this setup is intended for local minikube testing, Mimir is deployed
+# directly using a Kubernetes manifest instead of Helm.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mimir-config
+data:
+  mimir.yaml: |
+    # Do not use this configuration in production.
+    # It is for demonstration purposes only.
+    multitenancy_enabled: false
+
+    blocks_storage:
+      backend: filesystem
+      bucket_store:
+        sync_dir: /tmp/mimir/tsdb-sync
+      filesystem:
+        dir: /tmp/mimir/data/tsdb
+      tsdb:
+        dir: /tmp/mimir/tsdb
+
+    compactor:
+      data_dir: /tmp/mimir/compactor
+      sharding_ring:
+        kvstore:
+          store: memberlist
+
+    distributor:
+      ring:
+        instance_addr: 127.0.0.1
+        kvstore:
+          store: memberlist
+
+    ingester:
+      ring:
+        instance_addr: 127.0.0.1
+        kvstore:
+          store: memberlist
+        replication_factor: 1
+
+    ruler_storage:
+      backend: filesystem
+      filesystem:
+        dir: /tmp/mimir/rules
+
+    server:
+      http_listen_port: 9009
+      log_level: error
+
+    store_gateway:
+      sharding_ring:
+        replication_factor: 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mimir
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mimir
+  template:
+    metadata:
+      labels:
+        app: mimir
+    spec:
+      containers:
+        - name: mimir
+          image: grafana/mimir:3.0.5
+          args:
+            - "-config.file=/etc/mimir/mimir.yaml"
+            - "-target=all"
+            - "-distributor.otel-promote-resource-attributes=k8s.namespace.name,k8s.pod.name,k8s.container.name,k8s.node.name,k8s.deployment.name,k8s.replicaset.name,k8s.statefulset.name,k8s.daemonset.name,k8s.job.name,k8s.cronjob.name,k8s.hpa.name"
+          ports:
+            - containerPort: 9009
+          volumeMounts:
+            - name: config
+              mountPath: /etc/mimir
+      volumes:
+        - name: config
+          configMap:
+            name: mimir-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mimir
+spec:
+  selector:
+    app: mimir
+  ports:
+    - port: 9009
+      targetPort: 9009

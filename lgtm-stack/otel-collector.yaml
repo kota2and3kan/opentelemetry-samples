@@ -1,0 +1,41 @@
+mode: deployment
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  exporters:
+    otlphttp/mimir:
+      endpoint: http://mimir.lgtm.svc.cluster.local:9009/otlp
+    otlphttp/loki:
+      endpoint: http://loki.lgtm.svc.cluster.local:3100/otlp
+    otlp/tempo:
+      endpoint: tempo.lgtm.svc.cluster.local:4317
+      tls:
+        insecure: true
+
+  processors:
+    batch: {}
+
+  service:
+    pipelines:
+      metrics:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlphttp/mimir]
+      logs:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlphttp/loki]
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp/tempo]
