@@ -1,0 +1,36 @@
+mode: deployment
+
+image:
+  repository: otel/opentelemetry-collector-k8s
+
+replicaCount: 1
+
+presets:
+  clusterMetrics:
+    enabled: true
+  kubernetesEvents:
+    enabled: true
+
+config:
+  exporters:
+    otlphttp/mimir:
+      endpoint: http://mimir.lgtm.svc.cluster.local:9009/otlp
+    otlphttp/loki:
+      endpoint: http://loki.lgtm.svc.cluster.local:3100/otlp
+
+  processors:
+    batch: {}
+    resource/k8sevents:
+      attributes:
+        - key: service.name
+          value: k8s-events
+          action: upsert
+
+  service:
+    pipelines:
+      metrics:
+        processors: [batch]
+        exporters: [otlphttp/mimir]
+      logs:
+        processors: [resource/k8sevents, batch]
+        exporters: [otlphttp/loki]

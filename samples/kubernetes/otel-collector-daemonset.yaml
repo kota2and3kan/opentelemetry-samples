@@ -1,0 +1,35 @@
+mode: daemonset
+
+image:
+  repository: otel/opentelemetry-collector-k8s
+
+presets:
+  kubernetesAttributes:
+    enabled: true
+  kubeletMetrics:
+    enabled: true
+  logsCollection:
+    enabled: true
+
+config:
+  receivers:
+    kubeletstats:
+      insecure_skip_verify: true
+
+  exporters:
+    otlphttp/mimir:
+      endpoint: http://mimir.lgtm.svc.cluster.local:9009/otlp
+    otlphttp/loki:
+      endpoint: http://loki.lgtm.svc.cluster.local:3100/otlp
+
+  processors:
+    batch: {}
+
+  service:
+    pipelines:
+      metrics:
+        processors: [batch]
+        exporters: [otlphttp/mimir]
+      logs:
+        processors: [batch]
+        exporters: [otlphttp/loki]
