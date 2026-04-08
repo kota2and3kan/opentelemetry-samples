@@ -83,8 +83,14 @@ helm uninstall loki tempo grafana -n lgtm
 kubectl delete -f ./lgtm-stack/mimir.yaml -n lgtm
 ```
 
-If you deployed the OpenTelemetry Collector, also run:
+> If you deployed the OpenTelemetry Collector, also run:
+> 
+> ```console
+> helm uninstall opentelemetry-collector -n lgtm
+> ```
+
+Finally, delete the namespace:
 
 ```console
-helm uninstall opentelemetry-collector -n lgtm
+kubectl delete ns lgtm
 ```

@@ -91,3 +91,18 @@
     ```console
     kubectl exec -it cockroachdb-client -n crdb -- ./cockroach sql --certs-dir=./cockroach-certs --host=cockroachdb-public --database=otel_test
     ```
+
+## How to clean up CockroachDB Cluster and client
+
+```console
+helm uninstall opentelemetry-collector cockroachdb -n crdb
+```
+```console
+kubectl delete -f ./client.yaml -n crdb
+```
+```console
+kubectl delete configmap cockroachdb-dashboards -n crdb
+```
+```console
+kubectl delete ns crdb
+```

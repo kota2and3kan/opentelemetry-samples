@@ -41,3 +41,12 @@
     ```console
     helm install opentelemetry-collector-k8s-deployment open-telemetry/opentelemetry-collector -f otel-collector-deployment.yaml --version 0.147.1 -n otel-k8s
     ```
+
+## How to clean up OpenTelemetry Collectors
+
+```console
+helm uninstall opentelemetry-collector-k8s-daemonset opentelemetry-collector-k8s-deployment -n otel-k8s
+```
+```console
+kubectl delete ns otel-k8s
+```
