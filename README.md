@@ -15,7 +15,7 @@
     ```
 
     ```console
-    helm repo update
+    helm repo update grafana-community
     ```
 
 1. Deploy Loki.
@@ -57,7 +57,7 @@
     ```
 
     ```console
-    helm repo update
+    helm repo update open-telemetry
     ```
 
     ```console
@@ -73,6 +73,10 @@ See [README](./samples/cockroachdb/README.md) in the `./samples/cockroachdb/` di
 ### Kubernetes OpenTelemetry Samples
 
 See [README](./samples/kubernetes/README.md) in the `./samples/kubernetes/` directory.
+
+### Kubernetes Operator Auto-Instrumentation Samples
+
+See [README](./samples/k8s-auto-instrumentation/README.md) in the `./samples/k8s-auto-instrumentation/` directory.
 
 ## How to clean up LGTM Stack
 

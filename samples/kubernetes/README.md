@@ -1,5 +1,7 @@
 # Kubernetes OpenTelemetry Samples
 
+> **Note:** This sample requires the LGTM Stack to be deployed as a monitoring backend. See the [README](../../README.md) of repository root for setup instructions.
+
 1. Navigate to the `./samples/kubernetes/` directory.
 
     ```console
