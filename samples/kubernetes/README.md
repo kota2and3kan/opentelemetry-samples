@@ -31,7 +31,7 @@
 1. Deploy OpenTelemetry Collector by using Helm.
 
     ```console
-    helm install opentelemetry-collector-k8s-daemonset open-telemetry/opentelemetry-collector -f otel-collector-daemonset.yaml --version 0.147.1 -n otel-k8s
+    helm install opentelemetry-collector-k8s-daemonset open-telemetry/opentelemetry-collector -f otel-collector-daemonset.yaml --version 0.152.0 -n otel-k8s
     ```
 
 ## How to deploy Deployment Collector
@@ -41,7 +41,7 @@
 1. Deploy OpenTelemetry Collector by using Helm.
 
     ```console
-    helm install opentelemetry-collector-k8s-deployment open-telemetry/opentelemetry-collector -f otel-collector-deployment.yaml --version 0.147.1 -n otel-k8s
+    helm install opentelemetry-collector-k8s-deployment open-telemetry/opentelemetry-collector -f otel-collector-deployment.yaml --version 0.152.0 -n otel-k8s
     ```
 
 ## How to clean up OpenTelemetry Collectors

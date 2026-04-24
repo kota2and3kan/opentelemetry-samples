@@ -21,7 +21,7 @@
 1. Deploy Loki.
 
     ```console
-    helm install loki grafana-community/loki -f ./lgtm-stack/loki.yaml --version 10.2.1 -n lgtm
+    helm install loki grafana-community/loki -f ./lgtm-stack/loki.yaml --version 13.2.3 -n lgtm
     ```
 
 1. Deploy Tempo.
@@ -41,7 +41,7 @@
 1. Deploy Grafana.
 
     ```console
-    helm install grafana grafana-community/grafana -f ./lgtm-stack/grafana.yaml --version 11.3.7 -n lgtm
+    helm install grafana grafana-community/grafana -f ./lgtm-stack/grafana.yaml --version 12.1.1 -n lgtm
     ```
 
     > **Note:** The `username / password` is `admin / lgtm`.
@@ -61,7 +61,7 @@
     ```
 
     ```console
-    helm install opentelemetry-collector open-telemetry/opentelemetry-collector -f ./lgtm-stack/otel-collector.yaml --version 0.147.1 -n lgtm
+    helm install opentelemetry-collector open-telemetry/opentelemetry-collector -f ./lgtm-stack/otel-collector.yaml --version 0.152.0 -n lgtm
     ```
 
 ## How to run samples

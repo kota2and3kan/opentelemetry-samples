@@ -27,7 +27,7 @@
     ```
 
     ```console
-    helm install opentelemetry-operator open-telemetry/opentelemetry-operator -f ./opentelemetry-operator.yaml --version 0.109.0 -n otel-k8s-auto-inst
+    helm install opentelemetry-operator open-telemetry/opentelemetry-operator -f ./opentelemetry-operator.yaml --version 0.110.0 -n otel-k8s-auto-inst
     ```
 
 ## How to deploy OpenTelemetry Collector through OpenTelemetry Operator
