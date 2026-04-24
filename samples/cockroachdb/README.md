@@ -23,11 +23,11 @@
     ```
 
     ```console
-    helm repo update
+    helm repo update open-telemetry
     ```
 
     ```console
-    helm install opentelemetry-collector open-telemetry/opentelemetry-collector -f otel-collector.yaml --version 0.147.1 -n crdb
+    helm install opentelemetry-collector open-telemetry/opentelemetry-collector -f otel-collector.yaml --version 0.152.0 -n crdb
     ```
 
 ## How to deploy Grafana dashboards for CockroachDB
@@ -53,7 +53,7 @@
     ```
 
     ```console
-    helm repo update
+    helm repo update cockroachdb
     ```
 
     ```console

@@ -70,7 +70,7 @@ spec:
     spec:
       containers:
         - name: mimir
-          image: grafana/mimir:3.0.5
+          image: grafana/mimir:3.0.6
           args:
             - "-config.file=/etc/mimir/mimir.yaml"
             - "-target=all"
