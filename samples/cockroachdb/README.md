@@ -46,10 +46,16 @@
 
 ## How to set up CockroachDB
 
-1. Deploy a CockroachDB cluster by using Helm.
+1. Set labels to Kubernetes nodes.
 
     ```console
-    helm repo add cockroachdb https://charts.cockroachdb.com/
+    kubectl label nodes --all topology.kubernetes.io/region=local topology.kubernetes.io/zone=local
+    ```
+
+1. Deploy a CockroachDB Operator by using Helm.
+
+    ```console
+    helm repo add cockroachdb https://charts.cockroachdb.com/v2
     ```
 
     ```console
@@ -57,8 +63,16 @@
     ```
 
     ```console
-    helm install cockroachdb cockroachdb/cockroachdb -f ./cockroachdb.yaml --version 20.0.2 -n crdb
+    helm install cockroachdb-operator cockroachdb/cockroachdb-operator-chart -f ./cockroachdb-operator.yaml -n crdb --version 1.1.0
     ```
+
+1. Deploy a CockroachDB cluster by using Helm.
+
+    ```console
+    helm install cockroachdb cockroachdb/cockroachdb-chart -f ./cockroachdb.yaml -n crdb --version 26.4.0
+    ```
+
+## Run benchmark tool (TPC-C)
 
 1. Deploy a client pod to run SQL CLI.
 
@@ -66,41 +80,45 @@
     kubectl apply -f ./client.yaml -n crdb
     ```
 
-1. Set up CockroachDB.
-
-    > **Note:** This script inserts 300,000 rows of sample data (approximately 60MB). It may take a few minutes to complete.
+1. Initialize the TPC-C tables.
 
     ```console
-    kubectl exec -it cockroachdb-client -n crdb -- ./cockroach sql --certs-dir=./cockroach-certs --host=cockroachdb-public --file /setup/setup-otel.sql
+    kubectl exec -it cockroachdb-client -n crdb -- ./cockroach workload init tpcc --warehouses 1 'postgresql://root@cockroachdb-public:26257?sslcert=cockroach-certs%2Fclient.root.crt&sslkey=cockroach-certs%2Fclient.root.key&sslmode=verify-full&sslrootcert=cockroach-certs%2Fca.crt'
     ```
 
-1. Run a sample query to generate spans.
+1. Run TPC-C queries.
 
     ```console
-    kubectl exec -it cockroachdb-client -n crdb -- ./cockroach sql --certs-dir=./cockroach-certs --host=cockroachdb-public --database=otel_test -e "SELECT * FROM otel_test.foo WHERE index = 3"
-    ```
-
-    ```console
-    kubectl exec -it cockroachdb-client -n crdb -- ./cockroach sql --certs-dir=./cockroach-certs --host=cockroachdb-public --database=otel_test -e "SELECT * FROM otel_test.foo WHERE index = 33"
-    ```
-
-    ```console
-    kubectl exec -it cockroachdb-client -n crdb -- ./cockroach sql --certs-dir=./cockroach-certs --host=cockroachdb-public --database=otel_test -e "SELECT * FROM otel_test.foo WHERE index = 333"
+    kubectl exec -it cockroachdb-client -n crdb -- ./cockroach workload run tpcc --warehouses 1 --duration 300s 'postgresql://root@cockroachdb-public:26257?sslcert=cockroach-certs%2Fclient.root.crt&sslkey=cockroach-certs%2Fclient.root.key&sslmode=verify-full&sslrootcert=cockroach-certs%2Fca.crt'
     ```
 
 1. [Optional] Access (run SQL commands in) CockroachDB by using SQL CLI.
 
     ```console
-    kubectl exec -it cockroachdb-client -n crdb -- ./cockroach sql --certs-dir=./cockroach-certs --host=cockroachdb-public --database=otel_test
+    kubectl exec -it cockroachdb-client -n crdb -- ./cockroach sql --certs-dir=./cockroach-certs --host=cockroachdb-public --database=defaultdb
     ```
+
+## [Optional] Access DB Console through https://localhost:8080.
+
+```console
+kubectl port-forward svc/cockroachdb-public 8080:8080 -n crdb
+```
+
+> **Note:** The `username / password` is `goki / buri`.
 
 ## How to clean up CockroachDB Cluster and client
 
 ```console
-helm uninstall opentelemetry-collector cockroachdb -n crdb
+helm uninstall opentelemetry-collector -n crdb
 ```
 ```console
 kubectl delete -f ./client.yaml -n crdb
+```
+```console
+helm uninstall cockroachdb -n crdb
+```
+```console
+helm uninstall cockroachdb-operator -n crdb
 ```
 ```console
 kubectl delete configmap cockroachdb-dashboards -n crdb

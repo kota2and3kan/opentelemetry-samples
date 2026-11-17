@@ -1,32 +1,54 @@
-service:
-  public:
-    type: LoadBalancer
-
-storage:
-  persistentVolume:
-    enabled: false
-
-tls:
-  enabled: true
-
-statefulset:
-  replicas: 3
-  terminationGracePeriodSeconds: 0
-  env:
-    - name: COCKROACH_MIN_RANGE_MAX_BYTES
-      value: "8388608" # 8 MiB
-
-conf:
-  log:
+cockroachdb:
+  tls:
     enabled: true
-    config:
-      otlp-defaults:
-        mode: grpc
-        compression: gzip
-      sinks:
-        otlp-servers:
-          all-logs:
-            address: opentelemetry-collector.crdb.svc.cluster.local:4317
-            channels: all
-            filter: INFO
-            format: json
+    selfSigner:
+      enabled: true
+
+  crdbCluster:
+    regions:
+      - code: local
+        nodes: 3
+        cloudProvider: ""
+        namespace: crdb
+    postInitSQL:
+      inline:
+        - "CREATE USER IF NOT EXISTS goki PASSWORD 'buri'"
+        - "GRANT admin TO goki"
+        # Set a small range size to increase the number of ranges and replicas for testing.
+        - "ALTER RANGE default CONFIGURE ZONE USING range_max_bytes = 8388608, range_min_bytes = 4194304"
+        - "SET CLUSTER SETTING trace.opentelemetry.collector = 'opentelemetry-collector.crdb.svc.cluster.local:4317'"
+
+    service:
+      public:
+        type: ClusterIP
+
+    dataStore:
+      volumeClaimTemplate: null
+      volumeSource:
+        emptyDir: {}
+
+    podTemplate:
+      spec:
+        topologySpreadConstraints: []
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution: []
+        terminationGracePeriodSeconds: 0
+        containers:
+          - name: cockroachdb
+            env:
+              - name: COCKROACH_MIN_RANGE_MAX_BYTES
+                value: "8388608" # 8 MiB
+
+    log:
+      config:
+        otlp-defaults:
+          mode: grpc
+          compression: gzip
+        sinks:
+          otlp-servers:
+            all-logs:
+              address: opentelemetry-collector.crdb.svc.cluster.local:4317
+              channels: all
+              filter: INFO
+              format: json
