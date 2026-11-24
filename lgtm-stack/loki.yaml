@@ -21,8 +21,6 @@ backend:
   replicas: 0
 gateway:
   enabled: false
-minio:
-  enabled: false
 lokiCanary:
   enabled: false
 chunksCache:
