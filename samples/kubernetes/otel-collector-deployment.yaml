@@ -13,9 +13,9 @@ presets:
 
 config:
   exporters:
-    otlphttp/mimir:
+    otlp_http/mimir:
       endpoint: http://mimir.lgtm.svc.cluster.local:9009/otlp
-    otlphttp/loki:
+    otlp_http/loki:
       endpoint: http://loki.lgtm.svc.cluster.local:3100/otlp
 
   processors:
@@ -30,7 +30,15 @@ config:
     pipelines:
       metrics:
         processors: [batch]
-        exporters: [otlphttp/mimir]
+        exporters: [otlp_http/mimir]
       logs:
         processors: [resource/k8sevents, batch]
-        exporters: [otlphttp/loki]
+        exporters: [otlp_http/loki]
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi

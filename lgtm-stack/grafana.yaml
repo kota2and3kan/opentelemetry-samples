@@ -4,7 +4,7 @@ replicas: 1
 adminPassword: lgtm
 
 service:
-  type: LoadBalancer
+  type: ClusterIP
   port: 3000
 
 datasources:

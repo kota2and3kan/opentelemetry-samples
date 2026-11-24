@@ -13,11 +13,11 @@ config:
           endpoint: 0.0.0.0:4318
 
   exporters:
-    otlphttp/mimir:
+    otlp_http/mimir:
       endpoint: http://mimir.lgtm.svc.cluster.local:9009/otlp
-    otlphttp/loki:
+    otlp_http/loki:
       endpoint: http://loki.lgtm.svc.cluster.local:3100/otlp
-    otlp/tempo:
+    otlp_grpc/tempo:
       endpoint: tempo.lgtm.svc.cluster.local:4317
       tls:
         insecure: true
@@ -30,12 +30,20 @@ config:
       metrics:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlphttp/mimir]
+        exporters: [otlp_http/mimir]
       logs:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlphttp/loki]
+        exporters: [otlp_http/loki]
       traces:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/tempo]
+        exporters: [otlp_grpc/tempo]
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi

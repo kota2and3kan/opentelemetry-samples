@@ -21,13 +21,13 @@
 1. Deploy Loki.
 
     ```console
-    helm install loki grafana-community/loki -f ./lgtm-stack/loki.yaml --version 13.2.3 -n lgtm
+    helm install loki grafana-community/loki -f ./lgtm-stack/loki.yaml --version 21.3.1 -n lgtm
     ```
 
 1. Deploy Tempo.
 
     ```console
-    helm install tempo grafana-community/tempo -f ./lgtm-stack/tempo.yaml --version 2.0.0 -n lgtm
+    helm install tempo grafana-community/tempo -f ./lgtm-stack/tempo.yaml --version 3.2.1 -n lgtm
     ```
 
 1. Deploy Mimir.
@@ -41,7 +41,13 @@
 1. Deploy Grafana.
 
     ```console
-    helm install grafana grafana-community/grafana -f ./lgtm-stack/grafana.yaml --version 12.1.1 -n lgtm
+    helm install grafana grafana-community/grafana -f ./lgtm-stack/grafana.yaml --version 14.4.2 -n lgtm
+    ```
+
+1. [Optional] Access Grafana Web UI through http://localhost:3000.
+
+    ```console
+    kubectl port-forward svc/grafana 3000:3000 -n lgtm
     ```
 
     > **Note:** The `username / password` is `admin / lgtm`.
@@ -61,7 +67,7 @@
     ```
 
     ```console
-    helm install opentelemetry-collector open-telemetry/opentelemetry-collector -f ./lgtm-stack/otel-collector.yaml --version 0.152.0 -n lgtm
+    helm install opentelemetry-collector open-telemetry/opentelemetry-collector -f ./lgtm-stack/otel-collector.yaml --version 0.178.3 -n lgtm
     ```
 
 ## How to run samples
